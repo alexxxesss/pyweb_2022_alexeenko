@@ -1,18 +1,29 @@
+from rest_framework import status
+
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 
 from blog.models import Note
+from .serializers import note_created, note_to_json
 
 
 class NoteListCreateAPIView(APIView):
     def get(self, request) -> Response:
-        temp_note = Note.objects.all()
-        return Response(temp_note)
+        notes = Note.objects.all()
+        return Response([note_to_json(obj) for obj in notes])
 
     def post(self, request: Request) -> Response:
-        ...
+        data = request.data
+        note = Note(**data)
+
+        note.save(force_insert=True)
+
+        return Response(
+            note_created(note),
+            status=status.HTTP_201_CREATED
+        )
 
 
 class NoteDetailAPIView(APIView):
