@@ -1,5 +1,5 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
-
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -27,8 +27,9 @@ class NoteListCreateAPIView(APIView):
 
 
 class NoteDetailAPIView(APIView):
-    def get(self, request):
-        ...
+    def get(self, request, pk: int) -> Response:
+        note = get_object_or_404(Note, pk=pk)
+        return Response(note_to_json(note))
 
-    def put(self, request):
+    def put(self, request, pk: int) -> Response:
         ...
