@@ -29,7 +29,14 @@ class NoteListCreateAPIView(APIView):
 class NoteDetailAPIView(APIView):
     def get(self, request, pk: int) -> Response:
         note = get_object_or_404(Note, pk=pk)
+
         return Response(note_to_json(note))
 
     def put(self, request, pk: int) -> Response:
-        ...
+        request_object = request.data
+        note = Note.objects.get(pk=pk)
+        note.title = request_object['title']
+        note.message = request_object['message']
+        note.save()
+
+        return Response(note_to_json(note))
