@@ -20,5 +20,22 @@ class Note(models.Model):
         verbose_name_plural = _('записи')
 
 
-# class Comment(models.Model):
-#     ...
+class Comment(models.Model):
+    class Ratings(models.IntegerChoices):
+        WITHOUT_RATING = 0, _('Без оценки')
+        TERRIBLE = 1, _('Ужасно')
+        BADLY = 2, _('Плохо')
+        FINE = 3, _('Нормально')
+        GOOD = 4, _('Хорошо')
+        EXCELLENT = 5, _('Отлично')
+
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name=_('comments'))
+    rating = models.IntegerField(default=Ratings.WITHOUT_RATING, choices=Ratings.choices, verbose_name=_('Оценка'))
+
+    def __str__(self):
+        return f'{self.get_rating_display()}: {self.author}'
+
+    class Meta:
+        verbose_name = _('комментарий')
+        verbose_name_plural = _('комментарии')

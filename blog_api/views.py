@@ -8,7 +8,7 @@ from rest_framework.generics import ListAPIView
 
 from blog.models import Note
 # from .serializers import note_created, note_to_json
-from .serializers import NoteSerializer
+from .serializers import NoteSerializer, NewNoteSerializer
 from . import filters
 
 
@@ -88,12 +88,18 @@ class NoteDetailAPIView(APIView):
 class PublicNoteListListAPIView(ListAPIView):
     """/notes/public/"""
     queryset = Note.objects.all()
-    serializer_class = NoteSerializer
+    serializer_class = NewNoteSerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(public=True)
+        # return queryset.filter(public=True)
 
-    def filter_queryset(self, queryset):
-        self.request.query_params.get("author_id", None)
-        return filters.note_filter_by_author_id(queryset, self.request.user.id)
+        return queryset \
+            .filter(public=True) \
+            .order_by("-create_at") \
+            .select_related("author") \
+            .prefetch_related("comments")
+
+    # def filter_queryset(self, queryset):
+    #     author_id = self.request.query_params.get("author_id")
+    #     return filters.note_filter_by_author_id(queryset, author_id)
